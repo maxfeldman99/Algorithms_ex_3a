@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <cmath>
 
 using namespace std;
 
@@ -16,6 +17,9 @@ typedef struct Customer {
 
 int getCustomerNum(ifstream&);
 Customer* getCustomerData(int customerNum, ifstream&);
+void buildArray(int *arr, int cusomerNum, Customer *customerList);
+void findBestSchedule(Customer *customerList, int customerNum, int *arr, int j, int i);
+int findMax(int *arr, int customerNum);
 
 
 int getCustomerNum(ifstream &myfile) {
@@ -76,27 +80,70 @@ Customer* getCustomerData(int customerNum,ifstream &myfile) {
 	}
 	return customerList;
 }
+void buildArray(int *arr,int cusomerNum,Customer *customerList) {
+	for (int i = 0; i < cusomerNum; i++) {
+		arr[i] = customerList[i].profit;
+		
+	}
+}
+
+void findBestSchedule(Customer *customerList,int customerNum, int *arr,int j,int i) {
+	while (j!= customerNum) {
+		cout << " index j : " << j << endl;
+		cout << " index i : " << i << endl;
+		if (customerList[i].start < customerList[j].end) { // is there an intersection?
+			if (i == customerNum) {
+				j++;
+			}
+			else {
+				i++;
+				j = 0;
+			}
+			
+		}
+		else {
+			arr[j] + customerList[i].profit > arr[i] ? arr[i] = arr[j] + customerList[i].profit : arr[i] = arr[j] + arr[i];
+			
+			if (j + 1 == i) {
+				i++;
+				j = 0;
+			}
+			if (i > customerNum) {
+			
+			}
+			((j + 1) == i) ? (i++, j = 0) : j++;
+			
+		}
+		
+
+		findBestSchedule(customerList, customerNum, arr, j, i);
+		
+	}
+	int maxVal;
+	maxVal = findMax(arr,customerNum);
+	cout << " The best match will give a revenue of " << maxVal << endl;
+	system("pause");
+}
+
+int findMax(int *arr, int customerNum) {
+	int max = arr[0];
+	for (int i = 0; i < customerNum; i++) {
+		if (arr[i] > max) {
+			max = arr[i];
+		}
+	}
+	return max;
+}
 
 
 
 
 void main() {
-	int len = 0;
+	
 	int num1, num2, profit;
 	int customerNum;
-	int *arr;
-	char c, a, b;
-	//string line;
-	
-	string filename = "orders.txt";
 	char fname[] = { "orders.txt" };
-	
-
-	int lineCounter = 0;
-	string line;
 	ifstream myfile;
-	
-
 	myfile.open(fname);
 	customerNum = getCustomerNum(myfile);
 	cout << customerNum << endl;
@@ -104,7 +151,9 @@ void main() {
 	myfile.close();
 	myfile.open(fname);
 	Customer* customerList = getCustomerData(customerNum,myfile);
-
+	int *arr = new int[customerNum];
+	buildArray(arr, customerNum, customerList);
+	findBestSchedule(customerList,customerNum,arr,0,1);
 	for (int i = 0; i < customerNum; i++) {
 
 		cout << "the " << i+1 <<" customer is : " << endl;
