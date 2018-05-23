@@ -167,7 +167,6 @@ Customer* getCustomerData(int customerNum,ifstream &myfile) {
 			}
 			else {
 				iss >> num1 >> a >> num2 >> a >> profit;
-				cout << line << endl;
 				customerList[i].start = num1;
 				customerList[i].end = num2;
 				customerList[i].profit = profit;
@@ -189,34 +188,30 @@ void buildArray(int *arr,int cusomerNum,Customer *customerList) {
 
 void findBestSchedule(Customer *customerList,int customerNum, int *arr,int j,int i) {
 	while (j!= customerNum-1 && i!=customerNum) {
-		cout << " index j : " << j << endl;
-		cout << " index i : " << i << endl;
+	
 		if (customerList[i].start < customerList[j].end && j+1==i) { // is there an intersection?
-		
+
 				i++;
 				j = 0;
 			}
 		else if (customerList[i].start < customerList[j].end && j + 1 != i) {
 			j++;
 		}
-			
+
 		else {
 			if (arr[j] + customerList[i].profit > arr[i]) {
 				arr[i] = arr[j] + customerList[i].profit;
 				customerList[i].list.push_back(customerList[j].orderNum);
-				cout << " pushed : ";
-				cout << customerList[j].orderNum << endl;
-
 
 			}
 			else {
-				
+
 			}
 			/*arr[j] + customerList[i].profit > arr[i] ? arr[i] = arr[j] + customerList[i].profit : arr[i] =  arr[i];*/
-			
-		
-		
+
+
 			((j + 1) == i) ? (i++, j = 0) : j++;
+			
 			if (i == customerNum) {
 				j++;
 			}
@@ -228,8 +223,14 @@ void findBestSchedule(Customer *customerList,int customerNum, int *arr,int j,int
 		
 	}
 	MaxVal answer;
-	answer = findMax(arr,customerNum,customerList);
-	cout << " Max value =  " << answer.maxProfit << endl;
+	
+	
+	answer = findMax(arr, customerNum, customerList);
+	
+	if (customerNum == 1) {
+		cout << "order : 1, ";
+	}
+	cout << "Max value =  " << answer.maxProfit << endl;
 	system("pause");
 }
 
@@ -237,6 +238,9 @@ MaxVal findMax(int *arr, int customerNum,Customer *customerList) {
 	MaxVal bestNode;
 	int a;
 	bestNode.maxProfit = arr[0];
+	if (customerNum == 1) { // if there is only 1 customer 
+		return bestNode;
+	}
 	for (int i = 0; i < customerNum; i++) {
 		if (arr[i] > bestNode.maxProfit) {
 			bestNode.maxProfit = arr[i];
@@ -244,9 +248,11 @@ MaxVal findMax(int *arr, int customerNum,Customer *customerList) {
 		}
 		
 	}
+
+
 	getOrders(a, customerList, customerNum);
 	
-
+	
 	
 	return bestNode;
 }
@@ -254,23 +260,21 @@ MaxVal findMax(int *arr, int customerNum,Customer *customerList) {
 MaxVal getOrders(int index,Customer *customerList,int CustomerNum) {
 	MaxVal bestOrderNode;
 	vector<int>::const_iterator i;
-	int a;
-	/*while (!customerList[index].list.empty()) {
-		 a = customerList[index].list.pop_back;
-		cout << a << " is from the best order" << endl;
-	}*/
-	//bestOrderNode.maxProfit = customerList[index].profit;
-	bestOrderNode.list = customerList[index].list;
-	cout << " orders :";
+		
 
-	for (i = customerList[index].list.begin(); i != customerList[index].list.end(); ++i) {
-		cout << (*i) << "," ;
-	}
+		bestOrderNode.list = customerList[index].list;
+		cout << "orders :";
 
-	return bestOrderNode;
+		
+
+		for (i = customerList[index].list.begin(); i != customerList[index].list.end(); ++i) {
+			cout << (*i) << ",";
+		}
+		cout << " ";
+
+		return bestOrderNode;
+	
 }
-
-
 
 
 
@@ -279,24 +283,16 @@ void main() {
 	
 	int num1, num2, profit;
 	int customerNum;
-	char fname[] = { "orders.txt" };
+	char fname[] = { "orders2.txt" };
 	ifstream myfile;
 	myfile.open(fname);
 	customerNum = getCustomerNum(myfile);
-	cout << customerNum << endl;
 	myfile.clear();
 	myfile.close();
 	myfile.open(fname);
 	Customer* customerList = getCustomerData(customerNum,myfile);
 	// customerList must be sorted here by end time
 	MergeSort(customerList, 0, customerNum - 1, customerNum);
-	for (int i = 0; i < customerNum; i++) {
-
-		cout << "the " << i + 1 << " customer is : " << endl;
-		cout << customerList[i].start << endl;
-		cout << customerList[i].end << endl;
-		cout << customerList[i].profit << endl;
-	}
 	int *arr = new int[customerNum];
 	buildArray(arr, customerNum, customerList);
 	findBestSchedule(customerList,customerNum,arr,0,1);
