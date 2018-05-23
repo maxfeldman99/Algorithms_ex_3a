@@ -187,29 +187,42 @@ void buildArray(int *arr,int cusomerNum,Customer *customerList) {
 }
 
 void findBestSchedule(Customer *customerList,int customerNum, int *arr,int j,int i) {
+	vector<int>::const_iterator p;
 	while (j!= customerNum-1 && i!=customerNum) {
 	
-		if (customerList[i].start < customerList[j].end && j+1==i) { // is there an intersection?
+		if (customerList[i].start < customerList[j].end && j + 1 == i) { // intersection and j=i-1
 
 				i++;
 				j = 0;
 			}
-		else if (customerList[i].start < customerList[j].end && j + 1 != i) {
+		else if (customerList[i].start < customerList[j].end && j + 1 != i) { // intersection and j!= i-1
 			j++;
 		}
 
-		else {
-			if (arr[j] + customerList[i].profit > arr[i]) {
-				arr[i] = arr[j] + customerList[i].profit;
-				customerList[i].list.push_back(customerList[j].orderNum);
+		else { // no intersection
 
+
+
+			if (arr[j] + customerList[i].profit > arr[i]) {
+
+				arr[i] = arr[j] + customerList[i].profit;
+
+
+
+				for (p = customerList[j].list.begin(); p!= customerList[j].list.end(); ++p) {  // this section will check if there is an intersection in the index's that were already pushed to the best answer so far and the new candidate
+					if (customerList[(*p)-1].start >= customerList[j].end) {
+						customerList[i].list.push_back(customerList[j].orderNum);
+						break;
+					}
+				}
+			
 			}
 			else {
 
 			}
 			/*arr[j] + customerList[i].profit > arr[i] ? arr[i] = arr[j] + customerList[i].profit : arr[i] =  arr[i];*/
 
-
+		
 			((j + 1) == i) ? (i++, j = 0) : j++;
 			
 			if (i == customerNum) {
@@ -265,8 +278,6 @@ MaxVal getOrders(int index,Customer *customerList,int CustomerNum) {
 		bestOrderNode.list = customerList[index].list;
 		cout << "orders :";
 
-		
-
 		for (i = customerList[index].list.begin(); i != customerList[index].list.end(); ++i) {
 			cout << (*i) << ",";
 		}
@@ -280,10 +291,10 @@ MaxVal getOrders(int index,Customer *customerList,int CustomerNum) {
 
 
 void main() {
-	
+	//
 	int num1, num2, profit;
 	int customerNum;
-	char fname[] = { "orders2.txt" };
+	char fname[] = { "orders.txt" };
 	ifstream myfile;
 	myfile.open(fname);
 	customerNum = getCustomerNum(myfile);
